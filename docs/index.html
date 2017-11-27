@@ -1,0 +1,19 @@
+<html>
+  <head></head>
+  <body>
+    <main id='main'></main>
+    <script>
+      const now = new Date();
+      const weekDay = now.getDay();
+      const hour = now.getHours();
+      const minute = now.getMinutes();
+      const timeSlot = (hour - 8) * 2 + ((minute > 15) ? ((minute > 45) ? 2 : 1) : 0);
+
+      fetch(`./${weekDay}/${timeSlot}.json`)
+        .then((res) => res.json())
+        .then((json) => {
+          document.getElementById('main').innerHTML = JSON.stringify(json);
+        });
+    </script>
+  </body>
+</html>
