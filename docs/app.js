@@ -26,35 +26,40 @@ const hour = now.getHours();
 const minute = now.getMinutes();
 const timeSlot = time2Timeslot(hour, minute);
 
-fetch(`./${weekDay}/${timeSlot}.json`)
-  .then((res) => res.json())
-  .then((json) => {
-    return groupBy(json, (item) => {
-      return AREA.find((place) => item.room.match(place)) || 'Other';
-    });
-  })
-  .then((roomGroup) => {
-    const main = document.getElementById('main');
-    Object.keys(roomGroup).forEach((key) => {
-      if (key === 'TBA') return;
-
-      const group = roomGroup[key].sort((a, b) => a - b);
-
-      const dl = document.createElement('dl');
-      const dt = document.createElement('dt');
-      dt.textContent = key;
-      dl.appendChild(dt);
-
-      group.forEach((room) => {
-        const time = timeslot2Time(room.until);
-        const dd = document.createElement('dd');
-        dd.innerHTML = `<u>${room.room}</u> probably empty until <strong>${time.hour}:${time.minute}</strong>`;
-        dl.appendChild(dd);
+if (timeSlot > 0) {
+  fetch(`./${weekDay}/${timeSlot}.json`)
+    .then((res) => res.json())
+    .then((json) => {
+      return groupBy(json, (item) => {
+        return AREA.find((place) => item.room.match(place)) || 'Other';
       });
+    })
+    .then((roomGroup) => {
+      const main = document.getElementById('main');
+      Object.keys(roomGroup).forEach((key) => {
+        if (key === 'TBA') return;
 
-      main.appendChild(dl);
+        const group = roomGroup[key].sort((a, b) => a - b);
+
+        const dl = document.createElement('dl');
+        const dt = document.createElement('dt');
+        dt.textContent = key;
+        dl.appendChild(dt);
+
+        group.forEach((room) => {
+          const time = timeslot2Time(room.until);
+          const dd = document.createElement('dd');
+          dd.innerHTML = `<u>${room.room}</u> probably empty until <strong>${time.hour}:${time.minute}</strong>`;
+          dl.appendChild(dd);
+        });
+
+        main.appendChild(dl);
+      });
     });
-  });
+} else {
+  const main = document.getElementById('main');
+  main.textContent = 'Come back later between 8:00AM and 23:30PM';
+}
 
 //This is the service worker with the Cache-first network
 

@@ -28,38 +28,43 @@ var hour = now.getHours();
 var minute = now.getMinutes();
 var timeSlot = time2Timeslot(hour, minute);
 
-fetch('./' + weekDay + '/' + timeSlot + '.json').then(function (res) {
-  return res.json();
-}).then(function (json) {
-  return groupBy(json, function (item) {
-    return AREA.find(function (place) {
-      return item.room.match(place);
-    }) || 'Other';
+if (timeSlot > 0) {
+  fetch('./' + weekDay + '/' + timeSlot + '.json').then(function (res) {
+    return res.json();
+  }).then(function (json) {
+    return groupBy(json, function (item) {
+      return AREA.find(function (place) {
+        return item.room.match(place);
+      }) || 'Other';
+    });
+  }).then(function (roomGroup) {
+    var main = document.getElementById('main');
+    Object.keys(roomGroup).forEach(function (key) {
+      if (key === 'TBA') return;
+
+      var group = roomGroup[key].sort(function (a, b) {
+        return a - b;
+      });
+
+      var dl = document.createElement('dl');
+      var dt = document.createElement('dt');
+      dt.textContent = key;
+      dl.appendChild(dt);
+
+      group.forEach(function (room) {
+        var time = timeslot2Time(room.until);
+        var dd = document.createElement('dd');
+        dd.innerHTML = '<u>' + room.room + '</u> probably empty until <strong>' + time.hour + ':' + time.minute + '</strong>';
+        dl.appendChild(dd);
+      });
+
+      main.appendChild(dl);
+    });
   });
-}).then(function (roomGroup) {
+} else {
   var main = document.getElementById('main');
-  Object.keys(roomGroup).forEach(function (key) {
-    if (key === 'TBA') return;
-
-    var group = roomGroup[key].sort(function (a, b) {
-      return a - b;
-    });
-
-    var dl = document.createElement('dl');
-    var dt = document.createElement('dt');
-    dt.textContent = key;
-    dl.appendChild(dt);
-
-    group.forEach(function (room) {
-      var time = timeslot2Time(room.until);
-      var dd = document.createElement('dd');
-      dd.innerHTML = '<u>' + room.room + '</u> probably empty until <strong>' + time.hour + ':' + time.minute + '</strong>';
-      dl.appendChild(dd);
-    });
-
-    main.appendChild(dl);
-  });
-});
+  main.textContent = 'Come back later between 8:00AM and 23:30PM';
+}
 
 //This is the service worker with the Cache-first network
 

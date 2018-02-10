@@ -1,0 +1,17 @@
+{
+  "name": "room_exploder_static",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {},
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1"
+  },
+  "scripts": {
+    "build": "babel ./docs/app.js > ./docs/app.es2015.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tommyku/room_exploder_static.git"
+  }
+}
