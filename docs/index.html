@@ -1,19 +1,139 @@
-<html>
-  <head></head>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge"> <!-- † -->
+
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="UST爆房">
+    <meta name="apple-mobile-web-app-title" content="UST爆房">
+    <meta name="theme-color" content="#e52d27">
+    <meta name="msapplication-navbutton-color" content="#e52d27">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="msapplication-starturl" content="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="icon" type="image/svg+xml" sizes="512x512" href="room.svg">
+    <link rel="apple-touch-icon" type="image/svg+xml" sizes="512x512" href="room.svg">
+    <link rel="manifest" href="manifest.json">
+
+    <title>UST爆房</title>
+
+    <style>
+      html {
+        font-size: medium;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+        font-size: 1rem;
+        line-height: 1.5;
+      }
+
+      header {
+        font-size: 2rem;
+        text-align: center;
+        color: white;
+        padding: 1rem 0;
+        background-color: #e52d27;
+      }
+
+      main {
+        padding: 0 1rem;
+      }
+
+      dt {
+        font-size: 1.5rem;
+        margin: 1em 0;
+      }
+
+      footer {
+        font-size: 1rem;
+        text-align: center;
+      }
+    </style>
+  </head>
   <body>
+    <header>UST爆房</header>
+    <noscript>Yo! Enable JavaScript or get outta here!</noscript>
     <main id='main'></main>
+    <footer>Mady with &hearts; by Tommy Ku</footer>
     <script>
+      const AREA = ['Acad Concourse', 'CYT Bldg', 'LSK Bldg', 'Lecture Theater', 'Lift 17-18', 'Lift 19', 'Lift 25-26', 'Lift 27-28', 'Lift 29-30', 'Lift 31-32', 'TBA']
+
+      function groupBy(list, iteratee) {
+        const result = {};
+        list.forEach((item) => {
+          const key = iteratee(item);
+          result[key] = result[key] || [];
+          result[key].push(item);
+        });
+        return result;
+      }
+
+      function time2Timeslot(hour, minute) {
+        return (hour - 8) * 2 + ((minute > 15) ? ((minute > 45) ? 2 : 1) : 0);
+      }
+
+      function timeslot2Time(timeslot) {
+        const hour = parseInt(timeslot / 2 + 8);
+        const minute = (timeslot % 2) ? 30 : 0;
+        return { hour, minute };
+      }
+
       const now = new Date();
       const weekDay = now.getDay();
       const hour = now.getHours();
       const minute = now.getMinutes();
-      const timeSlot = (hour - 8) * 2 + ((minute > 15) ? ((minute > 45) ? 2 : 1) : 0);
+      const timeSlot = time2Timeslot(hour, minute);
 
       fetch(`./${weekDay}/${timeSlot}.json`)
         .then((res) => res.json())
         .then((json) => {
-          document.getElementById('main').innerHTML = JSON.stringify(json);
+          return groupBy(json, (item) => {
+            return AREA.find((place) => item.room.match(place)) || 'Other';
+          });
+        })
+        .then((roomGroup) => {
+          const main = document.getElementById('main');
+          Object.keys(roomGroup).forEach((key) => {
+            if (key === 'TBA') return;
+
+            const group = roomGroup[key].sort((a, b) => a - b);
+
+            const dl = document.createElement('dl');
+            const dt = document.createElement('dt');
+            dt.textContent = key;
+            dl.appendChild(dt);
+
+            group.forEach((room) => {
+              const time = timeslot2Time(room.until);
+              const dd = document.createElement('dd');
+              dd.innerHTML = `<u>${room.room}</u> probably empty until <strong>${time.hour}:${time.minute}</strong>`;
+              dl.appendChild(dd);
+            });
+
+            main.appendChild(dl);
+          });
         });
+    </script>
+    <script>
+      //This is the service worker with the Cache-first network
+
+      //Add this below content to your HTML page, or add the js file to your page at the very top to register sercie worker
+      if (navigator.serviceWorker.controller) {
+        console.log('[PWA Builder] active service worker found, no need to register')
+      } else {
+        //Register the ServiceWorker
+        navigator.serviceWorker.register('pwabuilder-sw.js', {
+          scope: './'
+        }).then(function(reg) {
+          console.log('Service worker has been registered for scope:'+ reg.scope);
+        });
+      }
     </script>
   </body>
 </html>
