@@ -3,7 +3,7 @@
 var CACHE = 'spring2018';
 var precacheFiles = [
   '/index.html',
-  '/room.svg',
+  '/room.png',
   '/0/0.json',
   '/0/1.json',
   '/0/2.json',
@@ -251,7 +251,7 @@ console.log('[ServiceWorker] Claiming clients for current page');
 
 self.addEventListener('fetch', function(evt) {
   console.log('The service worker is serving the asset.'+ evt.request.url);
-  evt.respondWith(fromCache(evt.request).catch(fromServer(evt.request)));
+  evt.respondWith(fromCache(evt.request));
   evt.waitUntil(update(evt.request));
 });
 
@@ -267,7 +267,7 @@ function fromCache(request) {
   //we pull files from the cache first thing so we can show them fast
   return caches.open(CACHE).then(function (cache) {
     return cache.match(request).then(function (matching) {
-      return matching || Promise.reject('no-match');
+      return matching || fetch(request).then(function(response){ return response} ); // returning a Promise.reject doesn't work
     });
   });
 }
@@ -281,9 +281,4 @@ function update(request) {
       return cache.put(request, response);
     });
   });
-}
-
-function fromServer(request){
-  //this is the fallback if it is not in the cahche to go to the server and get it
-return fetch(request).then(function(response){ return response})
 }

@@ -1,24 +1,14 @@
 {
-  "name": "你的Link",
-  "short_name": "你的Link",
+  "name": "UST爆房",
+  "short_name": "UST爆房",
   "lang": "en-US",
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "gold",
-  "background_color": "gold",
+  "theme_color": "#e52d27",
+  "background_color": "#e52d27",
   "icons": [
     {
-      "src": "clown-128.png",
-      "sizes": "128x128",
-      "type": "image/png"
-    },
-    {
-      "src": "clown-256.png",
-      "sizes": "256x256",
-      "type": "image/png"
-    },
-    {
-      "src": "clown-512.png",
+      "src": "room.png",
       "sizes": "512x512",
       "type": "image/png"
     }
