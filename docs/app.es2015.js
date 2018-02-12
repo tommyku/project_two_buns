@@ -1,6 +1,6 @@
 'use strict';
 
-var AREA = ['Acad Concourse', 'CYT Bldg', 'LSK Bldg', 'Lecture Theater', 'Lift 17-18', 'Lift 19', 'Lift 25-26', 'Lift 27-28', 'Lift 29-30', 'Lift 31-32', 'TBA'];
+var AREA = ['Acad Concourse', 'Lecture Theater', 'Lift 17-18', 'Lift 19', 'Lift 25-26', 'Lift 27-28', 'Lift 29-30', 'Lift 31-32', 'CYT Bldg', 'LSK Bldg', 'TBA'];
 
 function groupBy(list, iteratee) {
   var result = {};
@@ -22,6 +22,10 @@ function timeslot2Time(timeslot) {
   return { hour: hour, minute: minute };
 }
 
+function digitPad(num) {
+  return num.toString().padStart(2, '0');
+}
+
 var now = new Date();
 var weekDay = now.getDay();
 var hour = now.getHours();
@@ -39,11 +43,12 @@ if (timeSlot > 0) {
     });
   }).then(function (roomGroup) {
     var main = document.getElementById('main');
-    Object.keys(roomGroup).forEach(function (key) {
+    AREA.forEach(function (key) {
       if (key === 'TBA') return;
+      if (!roomGroup.hasOwnProperty(key) && key !== 'Other') return;
 
       var group = roomGroup[key].sort(function (a, b) {
-        return a - b;
+        return b.until - a.until;
       });
 
       var dl = document.createElement('dl');
@@ -54,7 +59,7 @@ if (timeSlot > 0) {
       group.forEach(function (room) {
         var time = timeslot2Time(room.until);
         var dd = document.createElement('dd');
-        dd.innerHTML = '<u>' + room.room + '</u> probably empty until <strong>' + time.hour + ':' + time.minute + '</strong>';
+        dd.innerHTML = '<u>' + room.room + '</u> probably empty until <strong>' + digitPad(time.hour) + ':' + digitPad(time.minute) + '</strong>';
         dl.appendChild(dd);
       });
 

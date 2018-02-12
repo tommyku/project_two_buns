@@ -1,4 +1,4 @@
-const AREA = ['Acad Concourse', 'CYT Bldg', 'LSK Bldg', 'Lecture Theater', 'Lift 17-18', 'Lift 19', 'Lift 25-26', 'Lift 27-28', 'Lift 29-30', 'Lift 31-32', 'TBA']
+const AREA = ['Acad Concourse', 'Lecture Theater', 'Lift 17-18', 'Lift 19', 'Lift 25-26', 'Lift 27-28', 'Lift 29-30', 'Lift 31-32', 'CYT Bldg', 'LSK Bldg', 'TBA'];
 
 function groupBy(list, iteratee) {
   const result = {};
@@ -20,6 +20,10 @@ function timeslot2Time(timeslot) {
   return { hour, minute };
 }
 
+function digitPad(num) {
+  return num.toString().padStart(2, '0');
+}
+
 const now = new Date();
 const weekDay = now.getDay();
 const hour = now.getHours();
@@ -36,10 +40,11 @@ if (timeSlot > 0) {
     })
     .then((roomGroup) => {
       const main = document.getElementById('main');
-      Object.keys(roomGroup).forEach((key) => {
+      AREA.forEach((key) => {
         if (key === 'TBA') return;
+        if (!roomGroup.hasOwnProperty(key) && key !== 'Other') return;
 
-        const group = roomGroup[key].sort((a, b) => a - b);
+        const group = roomGroup[key].sort((a, b) => b.until - a.until);
 
         const dl = document.createElement('dl');
         const dt = document.createElement('dt');
@@ -49,7 +54,7 @@ if (timeSlot > 0) {
         group.forEach((room) => {
           const time = timeslot2Time(room.until);
           const dd = document.createElement('dd');
-          dd.innerHTML = `<u>${room.room}</u> probably empty until <strong>${time.hour}:${time.minute}</strong>`;
+          dd.innerHTML = `<u>${room.room}</u> probably empty until <strong>${digitPad(time.hour)}:${digitPad(time.minute)}</strong>`;
           dl.appendChild(dd);
         });
 
