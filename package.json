@@ -8,7 +8,8 @@
     "babel-preset-es2015": "^6.24.1"
   },
   "scripts": {
-    "build": "babel ./docs/app.js > ./docs/app.es2015.js"
+    "build": "babel ./docs/app.js > ./docs/app.es2015.js",
+    "postbuild": "node ./scripts/bump.js"
   },
   "repository": {
     "type": "git",
