@@ -13,7 +13,7 @@ function groupBy(list, iteratee) {
 }
 
 function time2Timeslot(hour, minute) {
-  return (hour - 8) * 2 + (minute > 15 ? minute > 45 ? 2 : 1 : 0);
+  return (minute > 15 && minute < 30 ? 1 : 0) + (minute > 45 ? 1 : 0) + (hour - 8) * 2 + (minute > 15 ? minute > 45 ? 2 : 1 : 0);
 }
 
 function timeslot2Time(timeslot) {
