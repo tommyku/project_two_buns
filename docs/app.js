@@ -24,47 +24,79 @@ function digitPad(num) {
   return num.toString().padStart(2, '0');
 }
 
-const now = new Date();
-const weekDay = now.getDay();
-const hour = now.getHours();
-const minute = now.getMinutes();
-const timeSlot = time2Timeslot(hour, minute);
+function updateList(weekDay, hour, minute) {
+  const timeSlot = time2Timeslot(hour, minute);
+  if (timeSlot > 0) {
+    fetch(`./${weekDay}/${timeSlot}.json`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.length > 0) {
+          return groupBy(json, (item) => {
+            return AREA.find((place) => item.room.match(place)) || 'Other';
+          });
+        } else {
+          throw 'There is no room to show';
+        }
+      })
+      .then((roomGroup) => {
+        const main = document.getElementById('main');
+        main.textContent = '';
+        AREA.forEach((key) => {
+          if (key === 'TBA') return;
+          if (!roomGroup.hasOwnProperty(key) && key !== 'Other') return;
 
-if (timeSlot > 0) {
-  fetch(`./${weekDay}/${timeSlot}.json`)
-    .then((res) => res.json())
-    .then((json) => {
-      return groupBy(json, (item) => {
-        return AREA.find((place) => item.room.match(place)) || 'Other';
-      });
-    })
-    .then((roomGroup) => {
-      const main = document.getElementById('main');
-      AREA.forEach((key) => {
-        if (key === 'TBA') return;
-        if (!roomGroup.hasOwnProperty(key) && key !== 'Other') return;
+          const group = roomGroup[key].sort((a, b) => b.until - a.until);
 
-        const group = roomGroup[key].sort((a, b) => b.until - a.until);
+          const dl = document.createElement('dl');
+          const dt = document.createElement('dt');
+          dt.textContent = key;
+          dl.appendChild(dt);
 
-        const dl = document.createElement('dl');
-        const dt = document.createElement('dt');
-        dt.textContent = key;
-        dl.appendChild(dt);
+          group.forEach((room) => {
+            const time = timeslot2Time(room.until);
+            const dd = document.createElement('dd');
+            dd.innerHTML = `<u>${room.room}</u> probably empty until <strong>${digitPad(time.hour)}:${digitPad(time.minute)}</strong>`;
+            dl.appendChild(dd);
+          });
 
-        group.forEach((room) => {
-          const time = timeslot2Time(room.until);
-          const dd = document.createElement('dd');
-          dd.innerHTML = `<u>${room.room}</u> probably empty until <strong>${digitPad(time.hour)}:${digitPad(time.minute)}</strong>`;
-          dl.appendChild(dd);
+          main.appendChild(dl);
         });
-
-        main.appendChild(dl);
+      })
+      .catch((errorMsg) => {
+        const main = document.getElementById('main');
+        main.textContent = errorMsg;
       });
-    });
-} else {
-  const main = document.getElementById('main');
-  main.textContent = 'Come back later between 8:00AM and 23:30PM';
+  } else {
+    const main = document.getElementById('main');
+    main.textContent = 'Come back later between 8:00AM and 23:30PM';
+  }
 }
+
+function setUp() {
+  const now = new Date();
+  const weekDay = now.getDay();
+  const hour = now.getHours();
+  const minute = now.getMinutes();
+
+  updateList(weekDay, hour, minute);
+
+  const weekDayOption = document.getElementById('weekDay').querySelector(`option[value='${weekDay}']`);
+  const minuteOption = document.getElementById('minute').querySelector(`option[value='${digitPad(minute < 30 ? 0 : 30)}']`);
+  const hourOption = document.getElementById('hour').querySelector(`option[value='${hour}']`);
+  weekDayOption.selected = true;
+  minuteOption.selected = true;
+  hourOption.selected = true;
+
+  const updateListButton = document.getElementById('updateListButton');
+  updateListButton.addEventListener('click', () => {
+    const weekDay = parseInt(document.getElementById('weekDay').value);
+    const hour = parseInt(document.getElementById('hour').value);
+    const minute = parseInt(document.getElementById('minute').value);
+    updateList(weekDay, hour, minute);
+  });
+}
+
+setUp();
 
 //This is the service worker with the Cache-first network
 

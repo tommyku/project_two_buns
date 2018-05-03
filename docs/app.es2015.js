@@ -26,50 +26,81 @@ function digitPad(num) {
   return num.toString().padStart(2, '0');
 }
 
-var now = new Date();
-var weekDay = now.getDay();
-var hour = now.getHours();
-var minute = now.getMinutes();
-var timeSlot = time2Timeslot(hour, minute);
+function updateList(weekDay, hour, minute) {
+  var timeSlot = time2Timeslot(hour, minute);
+  if (timeSlot > 0) {
+    fetch('./' + weekDay + '/' + timeSlot + '.json').then(function (res) {
+      return res.json();
+    }).then(function (json) {
+      if (json.length > 0) {
+        return groupBy(json, function (item) {
+          return AREA.find(function (place) {
+            return item.room.match(place);
+          }) || 'Other';
+        });
+      } else {
+        throw 'There is no room to show';
+      }
+    }).then(function (roomGroup) {
+      var main = document.getElementById('main');
+      main.textContent = '';
+      AREA.forEach(function (key) {
+        if (key === 'TBA') return;
+        if (!roomGroup.hasOwnProperty(key) && key !== 'Other') return;
 
-if (timeSlot > 0) {
-  fetch('./' + weekDay + '/' + timeSlot + '.json').then(function (res) {
-    return res.json();
-  }).then(function (json) {
-    return groupBy(json, function (item) {
-      return AREA.find(function (place) {
-        return item.room.match(place);
-      }) || 'Other';
+        var group = roomGroup[key].sort(function (a, b) {
+          return b.until - a.until;
+        });
+
+        var dl = document.createElement('dl');
+        var dt = document.createElement('dt');
+        dt.textContent = key;
+        dl.appendChild(dt);
+
+        group.forEach(function (room) {
+          var time = timeslot2Time(room.until);
+          var dd = document.createElement('dd');
+          dd.innerHTML = '<u>' + room.room + '</u> probably empty until <strong>' + digitPad(time.hour) + ':' + digitPad(time.minute) + '</strong>';
+          dl.appendChild(dd);
+        });
+
+        main.appendChild(dl);
+      });
+    }).catch(function (errorMsg) {
+      var main = document.getElementById('main');
+      main.textContent = errorMsg;
     });
-  }).then(function (roomGroup) {
+  } else {
     var main = document.getElementById('main');
-    AREA.forEach(function (key) {
-      if (key === 'TBA') return;
-      if (!roomGroup.hasOwnProperty(key) && key !== 'Other') return;
-
-      var group = roomGroup[key].sort(function (a, b) {
-        return b.until - a.until;
-      });
-
-      var dl = document.createElement('dl');
-      var dt = document.createElement('dt');
-      dt.textContent = key;
-      dl.appendChild(dt);
-
-      group.forEach(function (room) {
-        var time = timeslot2Time(room.until);
-        var dd = document.createElement('dd');
-        dd.innerHTML = '<u>' + room.room + '</u> probably empty until <strong>' + digitPad(time.hour) + ':' + digitPad(time.minute) + '</strong>';
-        dl.appendChild(dd);
-      });
-
-      main.appendChild(dl);
-    });
-  });
-} else {
-  var main = document.getElementById('main');
-  main.textContent = 'Come back later between 8:00AM and 23:30PM';
+    main.textContent = 'Come back later between 8:00AM and 23:30PM';
+  }
 }
+
+function setUp() {
+  var now = new Date();
+  var weekDay = now.getDay();
+  var hour = now.getHours();
+  var minute = now.getMinutes();
+
+  updateList(weekDay, hour, minute);
+
+  var weekDayOption = document.getElementById('weekDay').querySelector('option[value=\'' + weekDay + '\']');
+  var minuteOption = document.getElementById('minute').querySelector('option[value=\'' + digitPad(minute < 30 ? 0 : 30) + '\']');
+  var hourOption = document.getElementById('hour').querySelector('option[value=\'' + hour + '\']');
+  weekDayOption.selected = true;
+  minuteOption.selected = true;
+  hourOption.selected = true;
+
+  var updateListButton = document.getElementById('updateListButton');
+  updateListButton.addEventListener('click', function () {
+    var weekDay = parseInt(document.getElementById('weekDay').value);
+    var hour = parseInt(document.getElementById('hour').value);
+    var minute = parseInt(document.getElementById('minute').value);
+    updateList(weekDay, hour, minute);
+  });
+}
+
+setUp();
 
 //This is the service worker with the Cache-first network
 
