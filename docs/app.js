@@ -113,14 +113,6 @@ function setUp() {
   minuteOption.selected = true;
   hourOption.selected = true;
 
-  const updateListButton = document.getElementById('updateListButton');
-  updateListButton.addEventListener('click', () => {
-    const weekDay = parseInt(document.getElementById('weekDay').value);
-    const hour = parseInt(document.getElementById('hour').value);
-    const minute = parseInt(document.getElementById('minute').value);
-    updateList(weekDay, hour, minute);
-  });
-
   // Web Share
   if (navigator.share) {
     const webShareButton = document.getElementById('webShareButton');

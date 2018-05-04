@@ -126,14 +126,6 @@ function setUp() {
   minuteOption.selected = true;
   hourOption.selected = true;
 
-  var updateListButton = document.getElementById('updateListButton');
-  updateListButton.addEventListener('click', function () {
-    var weekDay = parseInt(document.getElementById('weekDay').value);
-    var hour = parseInt(document.getElementById('hour').value);
-    var minute = parseInt(document.getElementById('minute').value);
-    updateList(weekDay, hour, minute);
-  });
-
   // Web Share
   if (navigator.share) {
     var webShareButton = document.getElementById('webShareButton');
