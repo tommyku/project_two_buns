@@ -52,6 +52,15 @@
         margin-top: 1rem;
       }
 
+      select {
+        padding: 0.25rem;
+        vertical-align: middle;
+      }
+
+      button {
+        vertical-align: middle;
+      }
+
       dt {
         font-size: 1.5rem;
         margin: 1em 0;
@@ -68,13 +77,13 @@
     <section>
       <form>
         <select id='weekDay' name='weekDay'>
-          <option value="0">Sun</option>
-          <option value="1">Mon</option>
-          <option value="2">Tue</option>
-          <option value="3">Wed</option>
-          <option value="4">Thu</option>
-          <option value="5">Fri</option>
-          <option value="6">Sat</option>
+          <option value="0">日</option>
+          <option value="1">一</option>
+          <option value="2">二</option>
+          <option value="3">三</option>
+          <option value="4">四</option>
+          <option value="5">五</option>
+          <option value="6">六</option>
         </select>
         <select id='hour' name='hour'>
           <option value="8">8</option>
@@ -98,7 +107,8 @@
           <option value='00'>00</option>
           <option value='30'>30</option>
         </select>
-        <button id='updateListButton'>Update</button>
+        <button id='updateListButton'>有咩房?</button>
+        <button type='button' id='webShareButton' style='display: none;'>分享</button>
       </form>
     </section>
     <main id='main'></main>

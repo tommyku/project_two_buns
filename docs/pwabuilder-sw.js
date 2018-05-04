@@ -1,6 +1,6 @@
 //This is the service worker with the Cache-first network
 
-var CACHE = 'spring2018-1525413717046';
+var CACHE = 'spring2018-1525414946736';
 var precacheFiles = [
   '/index.html',
   '/room.png',

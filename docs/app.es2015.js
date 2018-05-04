@@ -36,7 +36,7 @@ function digitPad(num) {
   return num.toString().padStart(2, '0');
 }
 
-function getInitialDateTimes() {
+function getSearchDateTimes() {
   var now = new Date();
   var date = {
     weekDay: now.getDay(),
@@ -114,12 +114,10 @@ function updateList(weekDay, hour, minute) {
 }
 
 function setUp() {
-  var _getInitialDateTimes = getInitialDateTimes(),
-      weekDay = _getInitialDateTimes.weekDay,
-      hour = _getInitialDateTimes.hour,
-      minute = _getInitialDateTimes.minute;
-
-  updateList(weekDay, hour, minute);
+  var _getSearchDateTimes = getSearchDateTimes(),
+      weekDay = _getSearchDateTimes.weekDay,
+      hour = _getSearchDateTimes.hour,
+      minute = _getSearchDateTimes.minute;
 
   var weekDayOption = document.getElementById('weekDay').querySelector('option[value=\'' + weekDay + '\']');
   var minuteOption = document.getElementById('minute').querySelector('option[value=\'' + digitPad(minute < 30 ? 0 : 30) + '\']');
@@ -135,6 +133,21 @@ function setUp() {
     var minute = parseInt(document.getElementById('minute').value);
     updateList(weekDay, hour, minute);
   });
+
+  // Web Share
+  if (navigator.share) {
+    var webShareButton = document.getElementById('webShareButton');
+    webShareButton.addEventListener('click', function () {
+      // throttle?
+      navigator.share({
+        title: 'UST 爆房',
+        text: '有房爆不爆？',
+        url: window.location
+      });
+    });
+    webShareButton.style.display = 'inline';
+  }
+  updateList(weekDay, hour, minute);
 }
 
 setUp();
