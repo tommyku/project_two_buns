@@ -20,8 +20,36 @@ function timeslot2Time(timeslot) {
   return { hour, minute };
 }
 
+function formattedTime(weekDay, hour, minute) {
+  const minuteText = minute >= 30 ? '30' : '00';
+  const hourText = digitPad(hour);
+  const weekDayText = '日一二三四五六'[weekDay];
+
+  return `星期${weekDayText} ${hourText}:${minuteText}`;
+}
+
 function digitPad(num) {
   return num.toString().padStart(2, '0');
+}
+
+function getInitialDateTimes() {
+  const now = new Date();
+  const date = {
+    weekDay: now.getDay(),
+    hour: now.getHours(),
+    minute: now.getMinutes(),
+  };
+
+  const queryString = window.location.search.substring(1)
+
+  queryString.split('&').forEach((item) => {
+    const [ key, value ] = item.split('=');
+    if (key.match(/^(weekDay|hour|minute)$/)) {
+      date[key] = parseInt(value);
+    }
+  });
+
+  return date;
 }
 
 function updateList(weekDay, hour, minute) {
@@ -40,7 +68,10 @@ function updateList(weekDay, hour, minute) {
       })
       .then((roomGroup) => {
         const main = document.getElementById('main');
+        const h2 = document.createElement('h2');
         main.textContent = '';
+        h2.textContent = `${formattedTime(weekDay, hour, minute)} 有咩房`;
+        main.appendChild(h2);
         AREA.forEach((key) => {
           if (key === 'TBA') return;
           if (!roomGroup.hasOwnProperty(key) && key !== 'Other') return;
@@ -73,10 +104,7 @@ function updateList(weekDay, hour, minute) {
 }
 
 function setUp() {
-  const now = new Date();
-  const weekDay = now.getDay();
-  const hour = now.getHours();
-  const minute = now.getMinutes();
+  const { weekDay, hour, minute } = getInitialDateTimes();
 
   updateList(weekDay, hour, minute);
 

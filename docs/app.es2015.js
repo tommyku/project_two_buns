@@ -1,5 +1,7 @@
 'use strict';
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var AREA = ['Acad Concourse', 'Lecture Theater', 'Lift 17-18', 'Lift 19', 'Lift 25-26', 'Lift 27-28', 'Lift 29-30', 'Lift 31-32', 'CYT Bldg', 'LSK Bldg', 'TBA', 'Other'];
 
 function groupBy(list, iteratee) {
@@ -22,8 +24,40 @@ function timeslot2Time(timeslot) {
   return { hour: hour, minute: minute };
 }
 
+function formattedTime(weekDay, hour, minute) {
+  var minuteText = minute >= 30 ? '30' : '00';
+  var hourText = digitPad(hour);
+  var weekDayText = '日一二三四五六'[weekDay];
+
+  return '\u661F\u671F' + weekDayText + ' ' + hourText + ':' + minuteText;
+}
+
 function digitPad(num) {
   return num.toString().padStart(2, '0');
+}
+
+function getInitialDateTimes() {
+  var now = new Date();
+  var date = {
+    weekDay: now.getDay(),
+    hour: now.getHours(),
+    minute: now.getMinutes()
+  };
+
+  var queryString = window.location.search.substring(1);
+
+  queryString.split('&').forEach(function (item) {
+    var _item$split = item.split('='),
+        _item$split2 = _slicedToArray(_item$split, 2),
+        key = _item$split2[0],
+        value = _item$split2[1];
+
+    if (key.match(/^(weekDay|hour|minute)$/)) {
+      date[key] = parseInt(value);
+    }
+  });
+
+  return date;
 }
 
 function updateList(weekDay, hour, minute) {
@@ -43,7 +77,10 @@ function updateList(weekDay, hour, minute) {
       }
     }).then(function (roomGroup) {
       var main = document.getElementById('main');
+      var h2 = document.createElement('h2');
       main.textContent = '';
+      h2.textContent = formattedTime(weekDay, hour, minute) + ' \u6709\u54A9\u623F';
+      main.appendChild(h2);
       AREA.forEach(function (key) {
         if (key === 'TBA') return;
         if (!roomGroup.hasOwnProperty(key) && key !== 'Other') return;
@@ -77,10 +114,10 @@ function updateList(weekDay, hour, minute) {
 }
 
 function setUp() {
-  var now = new Date();
-  var weekDay = now.getDay();
-  var hour = now.getHours();
-  var minute = now.getMinutes();
+  var _getInitialDateTimes = getInitialDateTimes(),
+      weekDay = _getInitialDateTimes.weekDay,
+      hour = _getInitialDateTimes.hour,
+      minute = _getInitialDateTimes.minute;
 
   updateList(weekDay, hour, minute);
 
