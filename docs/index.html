@@ -52,6 +52,11 @@
         margin-top: 1rem;
       }
 
+      button > a {
+        color: currentColor;
+        text-decoration: none;
+      }
+
       select {
         padding: 0.25rem;
         vertical-align: middle;
@@ -107,7 +112,8 @@
           <option value='00'>00</option>
           <option value='30'>30</option>
         </select>
-        <button id='updateListButton'>有咩房?</button>
+        <button id='updateListButton'>果時有咩房?</button>
+        <button type='button'><a href='/'>而家有咩房？</a></button>
         <button type='button' id='webShareButton' style='display: none;'>分享</button>
       </form>
     </section>
