@@ -74,7 +74,7 @@ function updateList(weekDay, hour, minute) {
         main.appendChild(h2);
         AREA.forEach((key) => {
           if (key === 'TBA') return;
-          if (!roomGroup.hasOwnProperty(key) && key !== 'Other') return;
+          if (!roomGroup.hasOwnProperty(key) || !roomGroup[key]) return;
 
           const group = roomGroup[key].sort((a, b) => b.until - a.until);
 

@@ -83,7 +83,7 @@ function updateList(weekDay, hour, minute) {
       main.appendChild(h2);
       AREA.forEach(function (key) {
         if (key === 'TBA') return;
-        if (!roomGroup.hasOwnProperty(key) && key !== 'Other') return;
+        if (!roomGroup.hasOwnProperty(key) || !roomGroup[key]) return;
 
         var group = roomGroup[key].sort(function (a, b) {
           return b.until - a.until;
