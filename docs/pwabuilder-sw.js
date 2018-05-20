@@ -1,6 +1,7 @@
 //This is the service worker with the Cache-first network
 
-var CACHE = 'spring2018-1525512124660';
+var CACHE = 'spring2018-1526784293476';
+var filterRegexp = /\?weekDay=\d+&hour=\d+&minute=\d+/;
 var precacheFiles = [
   '/index.html',
   '/room.png',
@@ -245,15 +246,19 @@ self.addEventListener('install', function(evt) {
 
 //allow sw to control of current page
 self.addEventListener('activate', function(event) {
-console.log('[ServiceWorker] Claiming clients for current page');
-      return self.clients.claim();
+  console.log('[ServiceWorker] Claiming clients for current page');
+  return self.clients.claim();
 
 });
 
 self.addEventListener('fetch', function(evt) {
-  console.log('The service worker is serving the asset.'+ evt.request.url);
-  evt.respondWith(fromCache(evt.request));
-  evt.waitUntil(update(evt.request));
+  console.log('The service worker is serving the asset. '+ evt.request.url);
+  var request = evt.request;
+  if (evt.request.url.match(filterRegexp)) {
+    request = new Request('index.html');
+  }
+  evt.respondWith(fromCache(request));
+  evt.waitUntil(update(request));
 });
 
 
