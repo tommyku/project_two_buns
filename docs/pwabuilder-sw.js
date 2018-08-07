@@ -1,6 +1,6 @@
 //This is the service worker with the Cache-first network
 
-var CACHE = 'spring2018-1526784293476';
+var CACHE = 'spring2018-1533625675332';
 var filterRegexp = /\?weekDay=\d+&hour=\d+&minute=\d+/;
 var precacheFiles = [
   '/index.html',
